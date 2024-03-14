@@ -51,7 +51,6 @@ jobs:
           VITE_BACKEND_URL: ${{ matrix.backend_url }}
           VITE_LOCALES: ${{ matrix.locales }}
           VITE_CURRENCY: ${{ matrix.currency }}
-
         run: |
           export CI=false
           export VITE_BACKEND_URL=${{ env.VITE_BACKEND_URL }}
