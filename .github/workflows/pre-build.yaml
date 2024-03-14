@@ -75,10 +75,8 @@ jobs:
           ECR_REPOSITORY: frontend-pre-${{ matrix.region_alias }}
           IMAGE_TAG: ${{ github.run_number }}
         run: |
-          ls -al ./build
           echo "\nBuild Docker image ...\n"
-          ls -al
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG --build-args VITE_LOCALES=${{ matrix.locales }} --build-args VITE_CURRENCY=${{ matrix.currency }} --build-args VITE_BACKEND_URL=${{ matrix.backend_url }} .
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG --build-arg VITE_LOCALES=${{ matrix.locales }} --build-arg VITE_CURRENCY=${{ matrix.currency }} --build-arg VITE_BACKEND_URL=${{ matrix.backend_url }} .
           docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest
           
