@@ -48,13 +48,15 @@ jobs:
 
       - name: Install Dependencies & Build
         env:
-          REACT_APP_BASE_URL: ${{ secrets.REACT_APP_BASE_URL }}
           VITE_BACKEND_URL: ${{ matrix.backend_url }}
           VITE_LOCALES: ${{ matrix.locales }}
           VITE_CURRENCY: ${{ matrix.currency }}
 
         run: |
           export CI=false
+          export VITE_BACKEND_URL=${{ env.VITE_BACKEND_URL }}
+          export VITE_LOCALES=${{ env.VITE_LOCALES }}
+          export VITE_CURRENCY=${{ env.VITE_CURRENCY }}
           npm install
           npm run build
 
