@@ -1,0 +1,87 @@
+name: React build
+on:
+  push:
+    branches:
+      - pre
+
+jobs:
+  pre-build:
+    environment: pre # GitHub Action Secret Environment
+    strategy:
+      matrix:
+        region: [ ap-northeast-1, ap-northeast-2, ap-southeast-2 ] # 순서대로 도쿄 / 서울 / 시드니
+        include:
+          - region: ap-northeast-1
+            region_alias: tokyo
+            locales: ja-JP
+            currency: JPY
+            backend_url: 172.20.141.45
+          - region: ap-northeast-2
+            region_alias: seoul
+            locales: ko-KR
+            currency: KRW
+            backend_url: 172.20.151.237
+          - region: ap-southeast-2
+            region_alias: sydney
+            locales: en-AU
+            currency: AUD
+            backend_url: 172.20.48.4
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source code.
+        uses: actions/checkout@master
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '21.6.2'
+
+      - name: Cache node modules
+        id: cache-node-modules
+        uses: actions/cache@v1
+        with:
+          path: node_modules
+          key: ${{ runner.OS }}-build-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.OS }}-build-
+            ${{ runner.OS }}-
+
+      - name: Install Dependencies & Build
+        env:
+          REACT_APP_BASE_URL: ${{ secrets.REACT_APP_BASE_URL }}
+        run: |
+          export CI=false
+          npm install
+          npm run build
+
+      ###############gg
+      # AWS ECR 배포 #
+      ###############
+      - name: Configure AWS credentials
+        id: configure-aws
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-region: ap-northeast-2
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Build, tag, and push the image to Amazon ECR
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: frontend-pre-${{ matrix.region_alias }}
+          IMAGE_TAG: ${{ github.run_number }}
+        run: |
+          ls -al ./build
+          echo "\nBuild Docker image ...\n"
+          ls -al
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG --build-args VITE_LOCALES=${{ matrix.locales }} --build-args VITE_CURRENCY=${{ matrix.currency }} --build-args VITE_BACKEND_URL=${{ matrix.backend_url }} .
+          docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker tag $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_REGISTRY/$ECR_REPOSITORY:latest
+          
+          echo "\nPushing image to ECR...\n"
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
