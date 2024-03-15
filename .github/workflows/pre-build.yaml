@@ -15,17 +15,17 @@ jobs:
             region_alias: tokyo
             locales: ja-JP
             currency: JPY
-            backend_url: 172.20.141.45
+            backend_url: backend.jp.yongdev.shop
           - region: ap-northeast-2
             region_alias: seoul
             locales: ko-KR
             currency: KRW
-            backend_url: a53692180af594848a1e86049b0127d9-1457604269.ap-northeast-2.elb.amazonaws.com
+            backend_url: backend.kr.yongdev.shop
           - region: ap-southeast-2
             region_alias: sydney
             locales: en-AU
             currency: AUD
-            backend_url: 172.20.48.4
+            backend_url: backend.au.yongdev.shop
 
     runs-on: ubuntu-latest
     steps:
