@@ -20,7 +20,7 @@ jobs:
             region_alias: seoul
             locales: ko-KR
             currency: KRW
-            backend_url: 172.20.151.237
+            backend_url: a53692180af594848a1e86049b0127d9-1457604269.ap-northeast-2.elb.amazonaws.com
           - region: ap-southeast-2
             region_alias: sydney
             locales: en-AU
