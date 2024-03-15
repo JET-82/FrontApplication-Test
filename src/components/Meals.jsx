@@ -11,7 +11,7 @@ export default function Meals() {
     data: loadedMeals,
     isLoading,
     error,
-  } = useHttp(`http://${BACKEND_URL}:8080/foods`, requestConfig, []);
+  } = useHttp(`http://${BACKEND_URL}/foods`, requestConfig, []);
 
   if (isLoading) {
     return <p className="center">Fetching meals...</p>;
